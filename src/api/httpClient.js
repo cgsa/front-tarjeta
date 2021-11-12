@@ -18,6 +18,8 @@ const httpClient = axios.create({
   baseURL: apiURL,
   headers: {
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "http://fichadas.lobeliaservices.com:8080",
+    "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
   },
 });
 
