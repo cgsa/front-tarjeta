@@ -2,8 +2,10 @@
   <header class="masthead">
     <div class="container">
       <div class="masthead-subheading">Bienvenido a contacto Garantido!</div>
-      <div class="masthead-subheading text-uppercase">Control de Acceso</div>
-      <div class="masthead-subheading text-uppercase">Último ingreso: {{lastPersonal}}</div>
+      <div>
+        <p>Último ingreso: {{lastPersonal}}</p>
+        <p>Hora: {{entryDate}}</p>
+      </div>      
       <input      
         v-if="!isSubmitting"  
         v-model="code"
@@ -25,28 +27,35 @@ export default {
       isSubmitting: false,
       code: "",
       result: "",
-      lastPersonal: ""
+      lastPersonal: "",
+      entryDate: ""
     };
   },
   mounted() {
     //this.form.email.focus();
     this.$refs["code"].focus();
+    const _this = this;
+    setInterval(function() {
+      _this.$refs["code"].focus();
+    },8000);
   },
   methods: {
     setLastEntry()
     {
-      console.log(window.location.origin);
       this.code = "";
       this.$refs["code"].focus();
+      this.entryDate = this.$moment(this.result.data.transaccion.created_at).format('DD/MM/YYYY h:mm:ss');
       this.lastPersonal = this.result.data.usuario.nombre +' '+ this.result.data.usuario.apellido;
     },
     async setEntryPersonal() {
+
+      const _this = this;
       if (this.code.length < 10) {
         return false;
       }
 
       this.isSubmitting = true;
-      const data = { "code-search": parseInt(this.code), 'ip-host': window.location.origin };
+      const data = { "code-search": this.code, 'ip-host': window.location.origin };
 
       try {
           
@@ -56,18 +65,19 @@ export default {
               this.setLastEntry()
             }, 100);
           }  
-          //this.lastPersonal = this.result.nombre +' '+ this.result.apellido;
-          //location.reload(true)
       } catch (error) {
-        console.log(error);
+        
         this.$notify({
           group: "foo",
           type: "error",
-          title: 'Error',
+          title: error.data.message,
           duration: 6000,
         });
+
       } finally {        
         this.isSubmitting = false;
+        this.code = "";
+        //_this.$refs["code"].focus();
       }
     },
   },
